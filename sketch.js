@@ -45,7 +45,7 @@ function Paddle(left) {
     }
 
     this.paddleWithinUpperboundP = () => {
-        return dist(this.xPos, this.yPos, this.xPos, height) > centreDisti + 20; 
+        return dist(this.xPos, this.yPos, this.xPos, height) > centreDist + 20; 
     }
 
     this.updateYPos = () => {
