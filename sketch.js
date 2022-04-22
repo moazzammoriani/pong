@@ -1,19 +1,74 @@
-let currentlyPressedKeyCode;
+let leftPlayer; 
+let rightPlayer;
+let leftPlayerScore;
+let rightPlayerScore;
+let ball;
+
 function setup() {
     createCanvas(1400,700);
     leftPlayer = new Paddle(true);
     rightPlayer = new Paddle(false);
+    leftPlayerScore = 0;
+    rightPlayerScore = 0;
     ball = new Ball(20, [255,255,255], leftPlayer, rightPlayer);
 }
 
-
 function draw() {
     background(0);
+    for (let i = 0; i < height; i+=20) {
+        fill(200);
+        if (i % 40 == 0) rect(width/2, i, 20, 20);
+    }
+
     leftPlayer.draw();
     rightPlayer.draw();
     ball.draw();
+
+    detectPlayerPoint(ball, leftPlayer.xPos, rightPlayer.xPos);
+    drawPlayerScore(true);
+    drawPlayerScore(false);
+
 }
 
+function initialize() {
+    leftPlayer.yPos = height / 2;
+    rightPlayer.yPos = height / 2;
+
+    ball.x = width / 2;
+    ball.y = height / 2;
+
+    ball.velocityX = random([10,-10])
+    ball.velocityY = random([-1.1, -1.2, -1.3, 1.1, 1.2, 1.3])
+}
+
+ function detectPlayerPoint(bll, leftPaddleX, rightPaddleX) {
+    if (bll.hitLeftVertWallp()) {
+        leftPlayerScore += 1;
+        initialize(); 
+    }
+
+    if (bll.hitRightVertWallp()) {
+        rightPlayerScore += 1;
+        initialize();
+    }
+
+} 
+
+function drawPlayerScore(left) {
+    centerOffset = -120;
+    playerScore = leftPlayerScore;
+
+    if (!left) {
+        centerOffset = -centerOffset; 
+        playerScore = rightPlayerScore;
+    }
+
+    textSize(50);
+    text(String(playerScore), 
+        width/2 + centerOffset,
+        60);
+
+}
 
 function Paddle(left) {
     distFromWall = 200;
@@ -43,16 +98,16 @@ function Paddle(left) {
     };
 
     this.paddleWithinLowerboundP = () => {
-        return dist(this.xPos, this.yPos, this.xPos, 0) > this.centerHeightDist + 20;
+        return dist(this.xPos, this.yPos, this.xPos, 0) > this.centerHeightDist;
         
     }
 
     this.paddleWithinUpperboundP = () => {
-        return dist(this.xPos, this.yPos, this.xPos, height) > this.centerHeightDist + 20; 
+        return dist(this.xPos, this.yPos, this.xPos, height) > this.centerHeightDist; 
     }
 
     this.updateYPos = () => {
-        movementDist = 8;
+        movementDist = 10;
         if (keyIsDown(this.paddleUpKeyCode) && this.paddleWithinLowerboundP()) {
             this.yPos -= movementDist;     
         } 
@@ -68,7 +123,7 @@ function Paddle(left) {
 function Ball(diameter, colorArr, paddle1, paddle2) {
 	this.x = width / 2;
 	this.y = height / 2 - 100;
-	this.velocityX = -5;
+	this.velocityX = -6;
 	this.velocityY = 1.2;
 	this.diameterX = diameter;
 	this.diameterY = diameter;
@@ -94,8 +149,16 @@ function Ball(diameter, colorArr, paddle1, paddle2) {
 
 	};
 
+    this.hitLeftVertWallp = () => {
+		return dist(this.x, this.y, 0, this.y) <= this.radius 
+    };
+
+    this.hitRightVertWallp = () => {
+        return dist(this.x, this.y, width, this.y) <= this.radius;
+    }
+
 	this.hitVertWallp = () => {
-		return dist(this.x, this.y, 0, this.y) <= this.radius || dist(this.x, this.y, width, this.y) <= this.radius;
+		return this.hitLeftVertWallp() || this.hitRightVertWallp();
 	};
 
 	this.hitHorzWallp = () => {
@@ -149,6 +212,3 @@ function Ball(diameter, colorArr, paddle1, paddle2) {
 
 
 
-function keyisdown() {
-    currentlypressedkeycode = keycode;
-}
